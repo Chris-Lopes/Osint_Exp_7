@@ -10,6 +10,7 @@ numpy
 pandas
 praw
 python-dotenv
+PyGithub
 requests
 schedule
 scikit-learn
