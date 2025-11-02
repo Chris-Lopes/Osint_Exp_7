@@ -14,5 +14,5 @@ def save_to_db(records, db_path="data/osint.db"):
         cur.execute("INSERT INTO osint_data VALUES (?, ?, ?, ?, ?)",
                     (r["platform"], r["user"], r["timestamp"], r["text"],
 r["url"]))
-conn.commit()
-conn.close()
+    conn.commit()
+    conn.close()    
