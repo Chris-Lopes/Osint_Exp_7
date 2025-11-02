@@ -1,16 +1,18 @@
-from collectors.twitter_collector import fetch_twitter
+# from collectors.twitter_collector import fetch_twitter
 from collectors.reddit_collector import fetch_reddit
-from collectors.facebook_collector import fetch_facebook
-from collectors.instagram_collector import fetch_instagram
+# from collectors.facebook_collector import fetch_facebook
+# from collectors.instagram_collector import fetch_instagram
+from collectors.github_collector import fetch_github
 from utils.cleaner import clean_text, filter_english
 from utils.database import save_to_db
 from utils.sentiment import add_sentiment
 # Collect
 data = []
-data.extend(fetch_twitter("AI", 10))
+# data.extend(fetch_twitter("AI", 10))
 data.extend(fetch_reddit("technology", 10))
-data.extend(fetch_facebook("cnn", 5))
-data.extend(fetch_instagram("nasa", 5))
+data.extend(fetch_github("osint", 10))
+# data.extend(fetch_facebook("cnn", 5))
+# data.extend(fetch_instagram("nasa", 5))
 
 # Clean
 for d in data:
