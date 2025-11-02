@@ -28,10 +28,10 @@ def safe_collect(collector_func, platform_name, *args, **kwargs):
         return []
 
 # data.extend(safe_collect(fetch_twitter, "Twitter", "AI", 10))
-data.extend(safe_collect(fetch_reddit, "Reddit", "crypto", 10))
-data.extend(safe_collect(fetch_github, "GitHub", "ai", 10))
+data.extend(safe_collect(fetch_reddit, "Reddit", "college", 25))
+data.extend(safe_collect(fetch_github, "GitHub", "android", 25))
 # data.extend(safe_collect(fetch_facebook, "Facebook", "cnn", 5))
-data.extend(safe_collect(fetch_instagram, "Instagram", "nasa", 5))
+# data.extend(safe_collect(fetch_instagram, "Instagram", "nasa", 5))
 
 # Clean
 for d in data:
