@@ -1,6 +1,7 @@
 beautifulsoup4
 discord.py
 facebook-sdk
+flask
 instaloader
 langdetect
 linkedin-api

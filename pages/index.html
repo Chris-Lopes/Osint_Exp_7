@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OSINT Pipeline Dashboard</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #ffd89b 0%, #ff9a76 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      header {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        color: #ff8c42;
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        color: #666;
+        font-size: 1.1em;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #ff8c42;
+        margin-bottom: 10px;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 1.1em;
+      }
+
+      .controls {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .search-box,
+      .filter-select {
+        padding: 12px 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1em;
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .search-box:focus,
+      .filter-select:focus {
+        outline: none;
+        border-color: #ff8c42;
+      }
+
+      .data-table {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      thead {
+        background: #ff8c42;
+        color: white;
+      }
+
+      th,
+      td {
+        padding: 15px;
+        text-align: left;
+      }
+
+      th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9em;
+        letter-spacing: 0.5px;
+      }
+
+      tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s;
+      }
+
+      tbody tr:hover {
+        background: #fff8f0;
+      }
+
+      .platform-badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 600;
+      }
+
+      .platform-reddit {
+        background: #ff4500;
+        color: white;
+      }
+
+      .platform-github {
+        background: #333;
+        color: white;
+      }
+
+      .platform-instagram {
+        background: linear-gradient(
+          45deg,
+          #f09433 0%,
+          #e6683c 25%,
+          #dc2743 50%,
+          #cc2366 75%,
+          #bc1888 100%
+        );
+        color: white;
+      }
+
+      .sentiment-positive {
+        color: #10b981;
+        font-weight: 600;
+      }
+
+      .sentiment-negative {
+        color: #ef4444;
+        font-weight: 600;
+      }
+
+      .sentiment-neutral {
+        color: #6b7280;
+        font-weight: 600;
+      }
+
+      .text-preview {
+        max-width: 400px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .url-link {
+        color: #ff8c42;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .url-link:hover {
+        text-decoration: underline;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 50px;
+        font-size: 1.2em;
+        color: #666;
+      }
+
+      .no-data {
+        text-align: center;
+        padding: 50px;
+        color: #999;
+        font-size: 1.1em;
+      }
+
+      .refresh-btn {
+        background: #ff8c42;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-size: 1em;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.3s;
+      }
+
+      .refresh-btn:hover {
+        background: #ff7020;
+      }
+
+      .timestamp {
+        color: #999;
+        font-size: 0.9em;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 1.8em;
+        }
+
+        .stats {
+          grid-template-columns: 1fr;
+        }
+
+        .controls {
+          flex-direction: column;
+        }
+
+        table {
+          font-size: 0.9em;
+        }
+
+        th,
+        td {
+          padding: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🔍 OSINT Pipeline Dashboard</h1>
+        <p class="subtitle">
+          Real-time Open Source Intelligence Data Collection
+        </p>
+      </header>
+
+      <div class="stats" id="stats">
+        <div class="stat-card">
+          <div class="stat-number" id="totalRecords">0</div>
+          <div class="stat-label">Total Records</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="redditCount">0</div>
+          <div class="stat-label">Reddit Posts</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="githubCount">0</div>
+          <div class="stat-label">GitHub Records</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="instagramCount">0</div>
+          <div class="stat-label">Instagram Posts</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <input
+          type="text"
+          class="search-box"
+          id="searchBox"
+          placeholder="🔎 Search text, user, or URL..."
+        />
+        <select class="filter-select" id="platformFilter">
+          <option value="">All Platforms</option>
+          <option value="reddit">Reddit</option>
+          <option value="github">GitHub</option>
+          <option value="instagram">Instagram</option>
+        </select>
+        <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
+      </div>
+
+      <div class="data-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Platform</th>
+              <th>User</th>
+              <th>Text Preview</th>
+              <th>Timestamp</th>
+              <th>URL</th>
+            </tr>
+          </thead>
+          <tbody id="dataBody">
+            <tr>
+              <td colspan="5" class="loading">Loading data...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      let allData = [];
+
+      // Load data from API
+      async function loadData() {
+        try {
+          const response = await fetch("/api/data");
+          const data = await response.json();
+          allData = data;
+          updateStats(data);
+          displayData(data);
+        } catch (error) {
+          console.error("Error loading data:", error);
+          document.getElementById("dataBody").innerHTML = `
+                    <tr><td colspan="5" class="no-data">Error loading data. Make sure the server is running.</td></tr>
+                `;
+        }
+      }
+
+      // Update statistics
+      function updateStats(data) {
+        document.getElementById("totalRecords").textContent = data.length;
+        document.getElementById("redditCount").textContent = data.filter(
+          (d) => d.platform === "reddit"
+        ).length;
+        document.getElementById("githubCount").textContent = data.filter(
+          (d) => d.platform === "github"
+        ).length;
+        document.getElementById("instagramCount").textContent = data.filter(
+          (d) => d.platform === "instagram"
+        ).length;
+      }
+
+      // Display data in table
+      function displayData(data) {
+        const tbody = document.getElementById("dataBody");
+
+        if (data.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="5" class="no-data">No records found</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data
+          .map(
+            (record) => `
+                <tr>
+                    <td>
+                        <span class="platform-badge platform-${
+                          record.platform
+                        }">
+                            ${record.platform.toUpperCase()}
+                        </span>
+                    </td>
+                    <td>${record.user || "N/A"}</td>
+                    <td class="text-preview" title="${escapeHtml(record.text)}">
+                        ${escapeHtml(record.text.substring(0, 100))}${
+              record.text.length > 100 ? "..." : ""
+            }
+                    </td>
+                    <td class="timestamp">${formatTimestamp(
+                      record.timestamp
+                    )}</td>
+                    <td>
+                        <a href="${
+                          record.url
+                        }" target="_blank" class="url-link">View →</a>
+                    </td>
+                </tr>
+            `
+          )
+          .join("");
+      }
+
+      // Format timestamp
+      function formatTimestamp(timestamp) {
+        const date = new Date(timestamp * 1000);
+        return date.toLocaleString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      // Escape HTML
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Filter data
+      function filterData() {
+        const searchTerm = document
+          .getElementById("searchBox")
+          .value.toLowerCase();
+        const platform = document.getElementById("platformFilter").value;
+
+        let filtered = allData;
+
+        // Filter by platform
+        if (platform) {
+          filtered = filtered.filter((d) => d.platform === platform);
+        }
+
+        // Filter by search term
+        if (searchTerm) {
+          filtered = filtered.filter(
+            (d) =>
+              d.text.toLowerCase().includes(searchTerm) ||
+              (d.user && d.user.toLowerCase().includes(searchTerm)) ||
+              d.url.toLowerCase().includes(searchTerm)
+          );
+        }
+
+        displayData(filtered);
+      }
+
+      // Event listeners
+      document
+        .getElementById("searchBox")
+        .addEventListener("input", filterData);
+      document
+        .getElementById("platformFilter")
+        .addEventListener("change", filterData);
+
+      // Load data on page load
+      loadData();
+    </script>
+  </body>
+</html>
